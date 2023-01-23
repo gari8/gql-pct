@@ -1,0 +1,16 @@
+type Place {
+    id: ID!
+    name: String!
+    latitude: Float!
+    longitude: Float!
+    programs(programType: ProgramType): [Program!]!
+}
+
+enum PlaceType {
+    LIVE_STAGE
+    EVENT_BOOTH
+}
+
+extend type Query {
+    places(placeType: PlaceType): [Place!]!
+}

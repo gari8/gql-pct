@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+  gql:
+    container_name: gql
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+    environment:
+      - MYSQL_DSN=test:test@tcp(mysql_db)/test?charset=utf8mb4&parseTime=True&loc=Local
+    ports:
+      - "8080:8080"
+    tty: true
+    depends_on:
+      - mysql_db
+  mysql_db:
+    container_name: mysql_db
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test
+      MYSQL_USER: test
+      MYSQL_PASSWORD: test

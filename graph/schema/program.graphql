@@ -1,0 +1,21 @@
+type Program {
+    id: ID!
+    name: String!
+    description: String!
+    image: String!
+    programType: ProgramType!
+    place: Place!
+}
+
+enum ProgramType {
+    WORKSHOP
+    CONFERENCE
+    MEETING
+    EVENT
+}
+
+extend type Query {
+    programs(programType: ProgramType): [Program!]!
+    program(id: ID!): Program!
+}
+
