@@ -2,7 +2,6 @@ package loader
 
 import (
 	"context"
-	"fmt"
 	"github.com/gari8/gqlgen-pct/domain"
 	"github.com/graph-gophers/dataloader"
 )
@@ -22,20 +21,19 @@ func newProgramsLoaderFunc(
 			return []*dataloader.Result{}
 		}
 
-		programByID := map[string]*domain.Program{}
+		programByID := map[string][]*domain.Program{}
 		for _, record := range records {
-			programByID[record.ID] = record
+			programByID[record.ID] = append(programByID[record.ID], record)
 		}
 
-		results := make([]*dataloader.Result, len(keys))
-		for i, key := range keys {
-			k := key.String()
-			results[i] = &dataloader.Result{Data: nil, Error: nil}
-			if place, ok := programByID[k]; ok {
-				results[i].Data = place
-			} else {
-				results[i].Error = fmt.Errorf("program[key=%s] not found", k)
-			}
+		programs := make([][]*domain.Program, len(ids))
+		for i, id := range ids {
+			programs[i] = programByID[*id]
+		}
+
+		results := make([]*dataloader.Result, len(programs))
+		for i := range programs {
+			results[i] = &dataloader.Result{Data: programs[i], Error: nil}
 		}
 
 		return results
@@ -44,14 +42,13 @@ func newProgramsLoaderFunc(
 
 func LoadPrograms(ctx context.Context, id string, programType *domain.ProgramType) ([]*domain.Program, error) {
 	loader := ctx.Value(loadersKey).(*Loaders)
-	thunk := loader.ProgramsByID.LoadMany(ctx, dataloader.Keys{dataloader.StringKey(id)})
-	data, errors := thunk()
-	if errors != nil {
-		return nil, errors[0]
+	thunk := loader.ProgramsByID.Load(ctx, dataloader.StringKey(id))
+	data, err := thunk()
+	if err != nil {
+		return nil, err
 	}
 	var programs []*domain.Program
-	for _, d := range data {
-		p := d.(*domain.Program)
+	for _, p := range data.([]*domain.Program) {
 		if programType != nil {
 			if p.ProgramType != *programType {
 				continue

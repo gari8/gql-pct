@@ -41,6 +41,25 @@ func DataLoaderMiddleware(
 	}
 }
 
+func NewLoaders(
+	placeRepo PlaceRepo,
+	programRepo ProgramRepo,
+) *Loaders {
+	return &Loaders{
+		PlaceByID:    newBatchedFunc(newPlaceLoaderFunc(placeRepo)),
+		ProgramsByID: newBatchedFunc(newProgramsLoaderFunc(programRepo)),
+	}
+}
+
+func Middleware(loaders *Loaders, next http.Handler) http.Handler {
+	// return a middleware that injects the loader to the request context
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), loadersKey, loaders)
+		r = r.WithContext(ctx)
+		next.ServeHTTP(w, r)
+	})
+}
+
 func newBatchedFunc(bf dataloader.BatchFunc) *dataloader.Loader {
 	return dataloader.NewBatchedLoader(bf, dataloader.WithWait(1*time.Millisecond))
 }

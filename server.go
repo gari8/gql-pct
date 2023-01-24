@@ -1,17 +1,15 @@
 package main
 
 import (
-	"github.com/gari8/gqlgen-pct/loader"
-	"github.com/gari8/gqlgen-pct/repository"
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
-	"log"
-	"net/http"
-	"os"
-
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gari8/gqlgen-pct/graph"
+	"github.com/gari8/gqlgen-pct/loader"
+	"github.com/gari8/gqlgen-pct/repository"
+	"github.com/gin-gonic/gin"
+	"log"
+	"os"
+	"strconv"
 )
 
 const defaultPort = "8080"
@@ -35,18 +33,43 @@ func main() {
 	placeRepo := repository.NewPlaceRepository(db)
 	programRepo := repository.NewProgramRepository(db)
 
-	srv := handler.NewDefaultServer(graph.NewExecutableSchema(graph.Config{Resolvers: &graph.Resolver{
+	r := gin.New()
+	r.Use(gin.Logger())
+	r.Use(gin.Recovery())
+	server := NewGqlServer(r, &graph.Resolver{
 		PlaceRepo:   placeRepo,
 		ProgramRepo: programRepo,
-	}}))
+	})
+	server.Run(8080)
+}
 
-	r := chi.NewRouter()
-	r.Use(middleware.Logger)
-	dl := loader.DataLoaderMiddleware(placeRepo, programRepo)
+type GqlServer struct {
+	router *gin.Engine
+}
 
-	r.Get("/", playground.Handler("GraphQL playground", "/query"))
-	r.With(dl).Post("/query", srv.ServeHTTP)
+func NewGqlServer(
+	router *gin.Engine,
+	resolver *graph.Resolver,
+) *GqlServer {
+	config := graph.Config{Resolvers: resolver}
 
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(":"+port, r))
+	router.POST("/graphql", func(c *gin.Context) {
+		srv := handler.NewDefaultServer(graph.NewExecutableSchema(config))
+		h := loader.Middleware(loader.NewLoaders(resolver.PlaceRepo, resolver.ProgramRepo), srv)
+		h.ServeHTTP(c.Writer, c.Request)
+	})
+	router.GET("/playground", playgroundHandler())
+
+	return &GqlServer{router}
+}
+
+func playgroundHandler() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		h := playground.Handler("GraphQL playground", "/graphql")
+		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
+func (c *GqlServer) Run(port int) {
+	c.router.Run(":" + strconv.Itoa(port))
 }

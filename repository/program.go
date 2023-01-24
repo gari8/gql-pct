@@ -22,7 +22,7 @@ func (r ProgramRepository) FindAll(programType *domain.ProgramType, placeIds []*
 	}
 	var err error
 	if placeIds != nil {
-		err = db.Find(&programs, placeIds).Error
+		err = db.Find(&programs, "place_id IN ?", placeIds).Error
 	} else {
 		err = db.Find(&programs).Error
 	}
