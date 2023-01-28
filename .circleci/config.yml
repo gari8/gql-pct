@@ -66,10 +66,10 @@ jobs:
           registry-url: $GAR_REGISTRY_URL
           source-tag: $CIRCLE_SHA1
           target-tag: latest
-      - update-kubeconfig-with-credentials:
+      - gcp-gke/update-kubeconfig-with-credentials:
           cluster: private # name of the cluster in GKE
           use_gke_cloud_auth_plugin: true
-      - rollout-image:
+      - gcp-gke/rollout-image:
           container: app
           deployment: app # name of the deployment in GKE
           image: $GAR_IMAGE_REPO/api
