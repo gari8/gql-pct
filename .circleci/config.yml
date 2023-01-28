@@ -76,7 +76,7 @@ jobs:
           deployment: deployment/app # name of the deployment in GKE
           image: $GAR_IMAGE_REPO/api
           namespace: app
-          tag: $CIRCLE_SHA1
+          tag: latest
 workflows:
   test:
     jobs:
