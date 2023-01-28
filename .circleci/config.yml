@@ -1,12 +1,15 @@
 version: 2.1
 
+orbs:
+  gcp_gcr: circleci/gcp-gcr@0.15.1
+
 executors:
-  custom:
+  default:
     docker:
       - image: cimg/base:2023.01
 
 jobs:
-  build:
+  lint_and_test:
     working_directory: ~/repo
     docker:
       - image: cimg/go:1.19.5
@@ -27,8 +30,39 @@ jobs:
       - run:
           name: Run lint
           command: staticcheck ./...
+      - run:
+          name: Prepare for docker build
+          command: |
+            mkdir -p /tmp/output
+            cp -r . /tmp/output
+      - persist_to_workspace:
+          root: /tmp/output
+          paths:
+            - .
 
 workflows:
   sample:
     jobs:
-      - build
+      - lint_and_test
+      - gcp_gcr/build_and_push:
+          name: build-and-push-app
+          executor: default
+          attach_workspace: true
+          setup_remote_docker: true
+          remote_docker_version: default
+          workspace_root: /tmp/output
+          docker_context: .
+          dockerfile: Dockerfile
+          path: .
+          registry_url: $GAR_REGISTRY_URL
+          gcloud_service_key: $GCLOUD_SERVICE_KEY
+          gcloud_project_id: $GCLOUD_PROJECT_ID
+          google_compute_region: $GOOGLE_COMPUTE_REGION
+          google_compute_zone: $GOOGLE_COMPUTE_ZONE
+          image: $GAR_IMAGE_REPO/app
+          tag: $CIRCLE_SHA1
+          requires:
+            - lint-and-test
+          filters:
+            branches:
+              only: main
