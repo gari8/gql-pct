@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  gcp_gcr: circleci/gcp-gcr@0.15.1
+  gcp-gcr: circleci/gcp-gcr@0.15.1
 
 executors:
   default:
@@ -44,7 +44,7 @@ workflows:
   sample:
     jobs:
       - lint_and_test
-      - gcp_gcr/build_and_push:
+      - gcp-gcr/build_and_push:
           name: build-and-push-app
           executor: default
           attach_workspace: true
