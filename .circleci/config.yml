@@ -3,11 +3,6 @@ version: 2.1
 orbs:
   gcp-gcr: circleci/gcp-gcr@0.15.0
 
-executors:
-  default:
-    docker:
-      - image: cimg/base:2022.01
-
 jobs:
   lint-and-test:
     working_directory: ~/repo
@@ -40,7 +35,7 @@ jobs:
           paths:
             - .
   build-and-push:
-    executor: default
+    executor: gcp-gcr/default
     steps:
       - checkout
       - gcp-gcr/gcr-auth:
