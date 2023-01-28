@@ -8,10 +8,10 @@ services:
     volumes:
       - .:/app
     environment:
-      - DB_HOST=test
+      - DB_HOST=mysql_db
       - DB_USER=test
       - DB_NAME=test
-      - DB_PASSWORD=root
+      - DB_PASSWORD=test
     ports:
       - "8080:8080"
     tty: true

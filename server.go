@@ -22,23 +22,23 @@ func main() {
 	}
 
 	dbHost := os.Getenv("DB_HOST")
-	if port == "" {
-		port = defaultPort
+	if dbHost == "" {
+		dbHost = "mysql_db"
 	}
 
 	dbUser := os.Getenv("DB_USER")
-	if port == "" {
-		port = defaultPort
+	if dbUser == "" {
+		dbUser = "test"
 	}
 
 	dbPassword := os.Getenv("DB_PASSWORD")
-	if port == "" {
-		port = defaultPort
+	if dbPassword == "" {
+		dbPassword = "test"
 	}
 
 	dbName := os.Getenv("DB_NAME")
-	if port == "" {
-		port = defaultPort
+	if dbName == "" {
+		dbName = "test"
 	}
 
 	db, err := NewDatabase(
