@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   gcp-gcr: circleci/gcp-gcr@0.15.0
+  gcp-cli: circleci/gcp-cli@3.0.1
   gcp-gke: circleci/gcp-gke@2.0.0
 
 jobs:
@@ -66,6 +67,8 @@ jobs:
           registry-url: $GAR_REGISTRY_URL
           source-tag: $CIRCLE_SHA1
           target-tag: latest
+      - gcp-cli/install:
+          components: gke-gcloud-auth-plugin
       - gcp-gke/update-kubeconfig-with-credentials:
           cluster: private # name of the cluster in GKE
           use_gke_cloud_auth_plugin: true
