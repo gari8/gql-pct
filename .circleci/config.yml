@@ -9,7 +9,7 @@ executors:
       - image: cimg/base:2023.01
 
 jobs:
-  lint_and_test:
+  lint-and-test:
     working_directory: ~/repo
     docker:
       - image: cimg/go:1.19.5
@@ -43,8 +43,8 @@ jobs:
 workflows:
   sample:
     jobs:
-      - lint_and_test
-      - gcp-gcr/build_and_push:
+      - lint-and-test
+      - gcp-gcr/build-and-push-image:
           name: build-and-push-app
           executor: default
           attach_workspace: true
