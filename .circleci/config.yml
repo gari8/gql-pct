@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  gcp-gcr: circleci/gcp-gcr@0.15.0
+  gcp-gcr: circleci/gcp-gcr@0.15.0 # 0.15.1にするとエラーになる source => https://github.com/CircleCI-Public/gcp-gcr-orb/issues/66
 
 executors:
   default:
