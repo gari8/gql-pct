@@ -39,10 +39,11 @@ jobs:
           root: /tmp/output
           paths:
             - .
-workflows:
-  sample:
-    jobs:
-      - lint-and-test
+  build-and-push:
+    executor: default
+    steps:
+      - checkout
+      - gcp-gcr/gcr-auth
       - gcp-gcr/build-and-push-image:
           name: build-and-push-app
           executor: default
@@ -60,11 +61,6 @@ workflows:
           google-compute-zone: GOOGLE_COMPUTE_ZONE
           image: $GAR_IMAGE_REPO/app
           tag: $CIRCLE_SHA1
-          requires:
-            - lint-and-test
-          filters:
-            branches:
-              only: main
       - gcp-gcr/add-image-tag:
           name: app-add-image-tag
           executor: default
@@ -76,5 +72,24 @@ workflows:
           registry-url: $GAR_REGISTRY_URL
           source-tag: $CIRCLE_SHA1
           target-tag: latest
+workflows:
+  test:
+    jobs:
+      - lint-and-test:
+          filters:
+            branches:
+              ignore:
+                - main
+  deploy-dev:
+    when:
+      equal: [main, << pipeline.git.branch >>]
+    jobs:
+      - lint-and-test:
+          context: dev
+      - build-and-push:
+          context: dev
           requires:
-            - build-and-push-app
+            - lint-and-test
+          filters:
+            branches:
+              only: main
