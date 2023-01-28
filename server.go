@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/gari8/gqlgen-pct/graph"
@@ -20,12 +21,30 @@ func main() {
 		port = defaultPort
 	}
 
-	dsn := os.Getenv("MYSQL_DSN")
-	if dsn == "" {
-		dsn = "test:test@tcp(mysql_db)/test?charset=utf8mb4&parseTime=True&loc=Local"
+	dbHost := os.Getenv("DB_HOST")
+	if port == "" {
+		port = defaultPort
 	}
 
-	db, err := NewDatabase(dsn)
+	dbUser := os.Getenv("DB_USER")
+	if port == "" {
+		port = defaultPort
+	}
+
+	dbPassword := os.Getenv("DB_PASSWORD")
+	if port == "" {
+		port = defaultPort
+	}
+
+	dbName := os.Getenv("DB_NAME")
+	if port == "" {
+		port = defaultPort
+	}
+
+	db, err := NewDatabase(
+		fmt.Sprintf(
+			"%s:%s@tcp(%s:3306)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+			dbUser, dbPassword, dbHost, dbName))
 	if err != nil {
 		log.Fatalln(err)
 	}

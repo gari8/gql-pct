@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   gcp-gcr: circleci/gcp-gcr@0.15.0
+  gcp-gke: circleci/gcp-gke@2.0.0
 
 jobs:
   lint-and-test:
@@ -34,7 +35,7 @@ jobs:
           root: /tmp/output
           paths:
             - .
-  build-and-push:
+  build-and-deploy:
     executor: gcp-gcr/default
     steps:
       - checkout
@@ -49,22 +50,31 @@ jobs:
           docker-context: .
           dockerfile: Dockerfile
           google-project-id: GOOGLE_PROJECT_ID
-          image: $GAR_IMAGE_REPO/app
+          image: $GAR_IMAGE_REPO/api
           path: .
           registry-url: $GAR_REGISTRY_URL
           workspace-root: /tmp/output
           tag: $CIRCLE_SHA1
       - gcp-gcr/push-image:
           google-project-id: GOOGLE_PROJECT_ID
-          image: $GAR_IMAGE_REPO/app
+          image: $GAR_IMAGE_REPO/api
           registry-url: $GAR_REGISTRY_URL
           tag: $CIRCLE_SHA1
       - gcp-gcr/tag-image:
           google-project-id: GOOGLE_PROJECT_ID
-          image: $GAR_IMAGE_REPO/app
+          image: $GAR_IMAGE_REPO/api
           registry-url: $GAR_REGISTRY_URL
           source-tag: $CIRCLE_SHA1
           target-tag: latest
+      - update-kubeconfig-with-credentials:
+          cluster: private # name of the cluster in GKE
+          use_gke_cloud_auth_plugin: true
+      - rollout-image:
+          container: app
+          deployment: app # name of the deployment in GKE
+          image: $GAR_IMAGE_REPO/api
+          namespace: app
+          tag: $CIRCLE_SHA1
 workflows:
   test:
     jobs:
@@ -79,7 +89,7 @@ workflows:
     jobs:
       - lint-and-test:
           context: dev
-      - build-and-push:
+      - build-and-deploy:
           context: dev
           requires:
             - lint-and-test
