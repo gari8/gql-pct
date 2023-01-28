@@ -65,3 +65,16 @@ workflows:
           filters:
             branches:
               only: main
+      - gcp-gcr/add-image-tag:
+          name: app-add-image-tag
+          executor: default
+          gcloud-service-key: GCLOUD_SERVICE_KEY
+          google-compute-region: GOOGLE_COMPUTE_REGION
+          google-compute-zone: GOOGLE_COMPUTE_ZONE
+          google-project-id: GOOGLE_PROJECT_ID
+          image: $GAR_IMAGE_REPO/app
+          registry-url: $GAR_REGISTRY_URL
+          source-tag: $CIRCLE_SHA1
+          target-tag: latest
+          requires:
+            - build-and-push-app
