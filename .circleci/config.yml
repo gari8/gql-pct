@@ -42,14 +42,14 @@ jobs:
       - checkout
       - gcp-gcr/gcr-auth:
           gcloud-service-key: GCLOUD_SERVICE_KEY
-          google-compute-region: GOOGLE_COMPUTE_REGION
-          google-compute-zone: GOOGLE_COMPUTE_ZONE
+          google-compute-region: GCP_REGION
+          google-compute-zone: GCP_ZONE
           google-project-id: GOOGLE_PROJECT_ID
           registry-url: $GAR_REGISTRY_URL
       - gcp-gcr/build-image:
           attach-workspace: true
           docker-context: .
-          dockerfile: Dockerfile
+          dockerfile: Dockerfile.prod
           google-project-id: GOOGLE_PROJECT_ID
           image: $GAR_IMAGE_REPO/api
           path: .
@@ -69,15 +69,12 @@ jobs:
           target-tag: latest
       - gcp-cli/install:
           components: gke-gcloud-auth-plugin
-      - gcp-gke/update-kubeconfig-with-credentials:
-          cluster: private # name of the cluster in GKE
-          use_gke_cloud_auth_plugin: true
-      - gcp-gke/rollout-image:
-          container: app
-          deployment: deployment/app # name of the deployment in GKE
-          image: $GAR_IMAGE_REPO/api
-          namespace: app
-          tag: latest
+      - run:
+          name: Deploy to GKE
+          command: |
+            gcloud auth activate-service-account --key-file=$GCLOUD_SERVICE_KEY
+            gcloud container clusters get-credentials private --region $GCP_REGION --project $GOOGLE_PROJECT_ID
+            kubectl rollout restart deployment/app -n app
 workflows:
   test:
     jobs:

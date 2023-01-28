@@ -1,0 +1,28 @@
+FROM golang:1.19-alpine as builder
+
+WORKDIR /app
+
+COPY . .
+
+RUN apk add build-base && \
+    apk add tzdata
+
+RUN go mod download && \
+    go generate ./...
+
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o /app/api .
+
+FROM alpine:3.14
+
+WORKDIR /
+
+COPY --from=builder /app/api /api
+COPY --from=builder /usr/share/zoneinfo/Asia/Tokyo /usr/share/zoneinfo/Asia/Tokyo
+
+RUN chmod +x /api
+RUN apk update && \
+    apk add curl jq
+
+EXPOSE 8080
+
+ENTRYPOINT ["/api"]
