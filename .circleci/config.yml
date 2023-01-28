@@ -73,6 +73,7 @@ jobs:
           cluster: private # name of the cluster in GKE
           use_gke_cloud_auth_plugin: true
       - gcp-gke/rollout-image:
+          container: app
           deployment: deployment/app # name of the deployment in GKE
           image: $GAR_IMAGE_REPO/api
           namespace: app
