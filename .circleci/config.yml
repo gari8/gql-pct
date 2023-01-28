@@ -55,10 +55,10 @@ workflows:
           dockerfile: Dockerfile
           path: .
           registry-url: $GAR_REGISTRY_URL
-          gcloud-service_key: $GCLOUD_SERVICE_KEY
-          gcloud-project_id: $GCLOUD_PROJECT_ID
-          google-compute_region: $GOOGLE_COMPUTE_REGION
-          google-compute_zone: $GOOGLE_COMPUTE_ZONE
+          gcloud-service-key: $GCLOUD_SERVICE_KEY
+          gcloud-project-id: $GCLOUD_PROJECT_ID
+          google-compute-region: $GOOGLE_COMPUTE_REGION
+          google-compute-zone: $GOOGLE_COMPUTE_ZONE
           image: $GAR_IMAGE_REPO/app
           tag: $CIRCLE_SHA1
           requires:
