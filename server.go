@@ -78,6 +78,9 @@ func NewGqlServer(
 		h.ServeHTTP(c.Writer, c.Request)
 	})
 	router.GET("/playground", playgroundHandler())
+	router.GET("/", func(context *gin.Context) {
+		context.String(200, "OK")
+	})
 
 	return &GqlServer{router}
 }
