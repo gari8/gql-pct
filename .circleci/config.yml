@@ -43,30 +43,28 @@ jobs:
     executor: default
     steps:
       - checkout
-      - gcp-gcr/gcr-auth
-      - gcp-gcr/build-and-push-image:
-          name: build-and-push-app
-          executor: default
+      - gcp-gcr/gcr-auth:
+          gcloud-service-key: GCLOUD_SERVICE_KEY
+          google-compute-region: GOOGLE_COMPUTE_REGION
+          google-compute-zone: GOOGLE_COMPUTE_ZONE
+          google-project-id: GOOGLE_PROJECT_ID
+          registry-url: $GAR_REGISTRY_URL
+      - gcp-gcr/build-image:
           attach-workspace: true
-          setup-remote-docker: true
-          remote-docker-version: default
-          workspace-root: /tmp/output
           docker-context: .
           dockerfile: Dockerfile
+          google-project-id: GOOGLE_PROJECT_ID
+          image: $GAR_IMAGE_REPO/app
           path: .
           registry-url: $GAR_REGISTRY_URL
-          gcloud-service-key: GCLOUD_SERVICE_KEY
-          google-project-id: GOOGLE_PROJECT_ID
-          google-compute-region: GOOGLE_COMPUTE_REGION
-          google-compute-zone: GOOGLE_COMPUTE_ZONE
-          image: $GAR_IMAGE_REPO/app
+          workspace-root: /tmp/output
           tag: $CIRCLE_SHA1
-      - gcp-gcr/add-image-tag:
-          name: app-add-image-tag
-          executor: default
-          gcloud-service-key: GCLOUD_SERVICE_KEY
-          google-compute-region: GOOGLE_COMPUTE_REGION
-          google-compute-zone: GOOGLE_COMPUTE_ZONE
+      - gcp-gcr/push-image:
+          google-project-id: GOOGLE_PROJECT_ID
+          image: $GAR_IMAGE_REPO/app
+          registry-url: $GAR_REGISTRY_URL
+          tag: $CIRCLE_SHA1
+      - gcp-gcr/tag-image:
           google-project-id: GOOGLE_PROJECT_ID
           image: $GAR_IMAGE_REPO/app
           registry-url: $GAR_REGISTRY_URL
