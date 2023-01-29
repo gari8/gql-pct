@@ -45,6 +45,7 @@ jobs:
           google-compute-zone: GCP_ZONE
           google-project-id: GOOGLE_PROJECT_ID
           registry-url: $GAR_REGISTRY_URL
+      - kubernetes/install-kubectl
       - gcp-gcr/build-image:
           attach-workspace: true
           docker-context: .
