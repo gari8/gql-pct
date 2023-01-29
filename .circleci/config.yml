@@ -67,7 +67,7 @@ jobs:
           registry-url: $GAR_REGISTRY_URL
           source-tag: $CIRCLE_SHA1
           target-tag: latest
-  deploy:
+  update-k8s-image:
     executor: gcp-cli/default
     steps:
       - checkout
@@ -104,7 +104,7 @@ workflows:
           context: dev
           requires:
             - lint-and-test
-      - deploy:
+      - update-k8s-image:
           context: dev
           requires:
             - build-and-deploy
