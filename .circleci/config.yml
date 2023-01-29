@@ -48,8 +48,8 @@ jobs:
           registry-url: $GAR_REGISTRY_URL
       - kubernetes/install-kubectl
       - gcp-cli/setup:
-          gcloud-service-key: GCLOUD_SERVICE_KEY
-          google-project-id: GOOGLE_PROJECT_ID
+          gcloud_service_key: GCLOUD_SERVICE_KEY
+          google_project_id: GOOGLE_PROJECT_ID
       - gcp-gcr/build-image:
           attach-workspace: true
           docker-context: .
