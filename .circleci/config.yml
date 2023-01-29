@@ -100,11 +100,11 @@ workflows:
     jobs:
       - lint-and-test:
           context: dev
-      - build-and-deploy:
+      - build-and-push:
           context: dev
           requires:
             - lint-and-test
       - update-k8s-image:
           context: dev
           requires:
-            - build-and-deploy
+            - build-and-push
