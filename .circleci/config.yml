@@ -81,6 +81,7 @@ jobs:
           name: Deploy to GKE
           command: |
             gcloud components install kubectl
+            gcloud auth login
             gcloud container clusters get-credentials ${GKE_CLUSTER_NAME} --region ${GCP_REGION} --project ${GOOGLE_PROJECT_ID}
       - kubernetes/update-container-image:
           container-image-updates: deployment/api=$GAR_IMAGE_REPO/api:latest
