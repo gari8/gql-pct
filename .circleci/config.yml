@@ -47,6 +47,7 @@ jobs:
           google-project-id: GOOGLE_PROJECT_ID
           registry-url: $GAR_REGISTRY_URL
       - kubernetes/install-kubectl
+      - gcp-cli/install
       - gcp-cli/setup:
           gcloud_service_key: GCLOUD_SERVICE_KEY
           google_project_id: GOOGLE_PROJECT_ID
