@@ -37,7 +37,7 @@ jobs:
           paths:
             - .
   build-and-deploy:
-    executor: gcp-gcr/default
+    executor: gcp-cli/default
     steps:
       - checkout
       - gcp-gcr/gcr-auth:
@@ -47,6 +47,7 @@ jobs:
           google-project-id: GOOGLE_PROJECT_ID
           registry-url: $GAR_REGISTRY_URL
       - gcp-cli/setup:
+          version: 404.0.0
           gcloud_service_key: GCLOUD_SERVICE_KEY
           google_project_id: GOOGLE_PROJECT_ID
           google_compute_zone: GCP_ZONE
